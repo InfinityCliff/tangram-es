@@ -476,7 +476,7 @@ void AndroidPlatform::sceneReadyCallback(bool success, const SceneError& sceneEr
 
 void loadScene(Map& map, const char* cPath, const std::vector<SceneUpdate>& updates) {
 
-    map.loadScene(resolveScenePath(cPath).c_str(), false,
+    map.loadSceneAsync(resolveScenePath(cPath).c_str(), false,
                    [&](bool success, const Tangram::SceneError& error){
                        auto platform = static_cast<AndroidPlatform&>(*map.getPlatform());
                        platform.sceneReadyCallback(success, error);

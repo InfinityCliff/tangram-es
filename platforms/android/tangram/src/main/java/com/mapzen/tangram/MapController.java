@@ -27,6 +27,7 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class MapController implements Renderer {
 
+
     /**
      * Options for interpolating map parameters
      */
@@ -271,9 +272,6 @@ public class MapController implements Renderer {
         });
     }
 
-    static MapController getInstance(GLSurfaceView view) {
-        return new MapController(view);
-    }
 
     /**
      * Load a new scene file
@@ -766,6 +764,10 @@ public class MapController implements Renderer {
         sceneLoadListener = listener;
     }
 
+    void setMapReadyCallback(MapView.OnMapReadyCallback callback) {
+        mapReadyCallback = callback;
+    }
+
     /**
      * @deprecated use setSceneLoadListener instead
      * Set a listener for scene update error statuses
@@ -1220,6 +1222,7 @@ public class MapController implements Renderer {
     private HttpHandler httpHandler;
     private FeaturePickListener featurePickListener;
     private SceneLoadListener sceneLoadListener;
+    private MapView.OnMapReadyCallback mapReadyCallback;
     private SceneUpdateErrorListener sceneUpdateErrorListener;
     private LabelPickListener labelPickListener;
     private MarkerPickListener markerPickListener;
@@ -1319,8 +1322,8 @@ public class MapController implements Renderer {
             sceneUpdateErrorListener.onSceneUpdateError(error);
         }
 
-        if (sceneLoadListener != null) {
-            final SceneLoadListener cb = sceneLoadListener;
+        final SceneLoadListener cb = sceneLoadListener;
+        if (cb != null) {
             uiThreadHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -1329,6 +1332,18 @@ public class MapController implements Renderer {
                     } else {
                         cb.onSceneError(error);
                     }
+                }
+            });
+        }
+
+        final MapView.OnMapReadyCallback readyCb = mapReadyCallback;
+        mapReadyCallback = null;
+        
+        if (readyCb != null) {
+            uiThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    readyCb.onMapReady(MapController.this);
                 }
             });
         }
